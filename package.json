@@ -1,0 +1,31 @@
+{
+  "name": "ignews",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@next-auth/fauna-adapter": "^0.2.4",
+    "@types/next-auth": "^3.15.0",
+    "faunadb": "^4.4.1",
+    "next": "12.0.1",
+    "next-auth": "^3.29.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-icons": "^4.3.1",
+    "sass": "^1.43.4",
+    "stripe": "^8.185.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@types/react": "^17.0.33",
+    "eslint": "7",
+    "eslint-config-next": "12.0.1",
+    "git-commit-msg-linter": "^3.2.8",
+    "typescript": "^4.4.4"
+  }
+}
