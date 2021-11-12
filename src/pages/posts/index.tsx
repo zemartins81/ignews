@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import styles from './styles.module.css'
+import styles from './styles.module.scss'
 
 export default function Posts() {
     return (
@@ -10,17 +10,17 @@ export default function Posts() {
 
             <main className={styles.container}>
                 <div className={styles.posts}>
-                    <a>
+                    <a href="#">
                         <time>12/11/2021</time>
                         <strong>ABXDS</strong>
                         <p>asdasdasdasdasdasdasdasdasdsasdasds</p>
                     </a>
-                    <a>
+                    <a href="#">
                         <time>12/11/2021</time>
                         <strong>ABXDS</strong>
                         <p>asdasdasdasdasdasdasdasdasdsasdasds</p>
                     </a>
-                    <a>
+                    <a href="#">
                         <time>12/11/2021</time>
                         <strong>ABXDS</strong>
                         <p>asdasdasdasdasdasdasdasdasdsasdasds</p>
