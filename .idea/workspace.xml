@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="98200b7c-3de3-4e06-94ef-1caa011c1c68" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jsLinters/eslint.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SubscribeButton/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SubscribeButton/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/api/auth/[...nextauth].ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/api/auth/[...nextauth].ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/api/subscribe.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/api/subscribe.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/posts/[slug].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/posts/[slug].tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,7 +31,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../IESES/ieses_projetos" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
-    <property name="node.js.selected.package.eslint" value="" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.standard" value="" />
     <property name="nodejs_interpreter_path" value="wsl://Ubuntu@/usr/bin/node" />
     <property name="nodejs_package_manager_path" value="yarn" />
@@ -47,7 +48,8 @@
       <option name="presentableId" value="Default" />
       <updated>1637097307424</updated>
       <workItem from="1637097308732" duration="33000" />
-      <workItem from="1637283000316" duration="3230000" />
+      <workItem from="1637283000316" duration="3472000" />
+      <workItem from="1637329036143" duration="2386000" />
     </task>
     <servers />
   </component>
