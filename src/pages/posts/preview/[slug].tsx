@@ -26,6 +26,7 @@ export default function PostPreview({ post }: PostPreviewProps) {
             router.push(`/posts/${post.slug}`)
         }
     }, [session])
+    
     return (
         <>
             <Head>
