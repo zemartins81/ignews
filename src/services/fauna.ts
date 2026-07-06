@@ -1,8 +1,12 @@
-import {Client} from 'faunadb'
+import { Client } from 'faunadb'
 
-export const fauna = new Client({
-    secret: process.env.FAUNADB_KEY,
-    scheme: "https",
-    domain: "db.us.fauna.com",
-    port: 443,
-})
+const secret = process.env.FAUNADB_KEY
+
+export const fauna = secret
+    ? new Client({
+        secret,
+        scheme: "https",
+        domain: "db.us.fauna.com",
+        port: 443,
+    })
+    : null

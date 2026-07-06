@@ -1,14 +1,14 @@
 import Stripe from 'stripe'
 import packageInfo from '../../package.json';
 
-export const stripe = new Stripe(
-    process.env.STRIPE_API_KEY,
-    {
-        apiVersion: '2020-08-27',
+const apiKey = process.env.STRIPE_API_KEY
+
+export const stripe = apiKey
+    ? new Stripe(apiKey, {
+        apiVersion: '2025-02-24.acacia',
         appInfo: {
             name: 'Ignews',
             version: packageInfo.version
         }
-
-    }
-)
+    })
+    : null

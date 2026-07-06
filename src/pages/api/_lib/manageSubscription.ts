@@ -7,6 +7,10 @@ export async function saveSubscription(
     customerId: string,
     createAction = false
 ) {
+    if (!fauna || !stripe) {
+        throw new Error('Services not configured')
+    }
+
     const userRef = await fauna.query(
         q.Select(
             "ref",
@@ -20,7 +24,6 @@ export async function saveSubscription(
     )
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-    
 
     const subscriptionData = {
         id: subscription.id,
@@ -50,7 +53,7 @@ export async function saveSubscription(
                         )
                     )
                 ),
-                {data: subscriptionData}
+                { data: subscriptionData }
             )
         )
     }

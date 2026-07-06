@@ -7,7 +7,7 @@ import { saveSubscription } from "./_lib/manageSubscription";
 
 async function buffer(readable: Readable) {
 
-    const chunks = []
+    const chunks: Buffer[] = []
 
     for await (const chunk of readable) {
         chunks.push(
@@ -16,7 +16,7 @@ async function buffer(readable: Readable) {
     }
 
     return Buffer.concat(chunks)
-    
+
 }
 
 export const config = {
@@ -34,20 +34,22 @@ const relevantEvents = new Set([
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === 'POST') {
+        if (!stripe) {
+            return res.status(500).json({ error: 'Stripe not configured' })
+        }
+
         const buff = await buffer(req)
         const secret = req.headers['stripe-signature']
 
         let event: Stripe.Event;
 
-        console.log(event)
-
         try {
-            event = stripe.webhooks.constructEvent(buff, secret, process.env.STRIPE_WEBHOOK_SECRET)
-        } catch (err) {
+            event = stripe.webhooks.constructEvent(buff, secret as string, process.env.STRIPE_WEBHOOK_SECRET!)
+        } catch (err: any) {
             return res.status(400).send(`Webhook-error: ${err.message}`)
         }
 
-        const {type} = event
+        const { type } = event
 
         if (relevantEvents.has(type)) {
             try {
@@ -59,7 +61,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
                         await saveSubscription(
                             subscription.id,
-                            subscription.customer.toString(),
+                            typeof subscription.customer === 'string'
+                                ? subscription.customer
+                                : subscription.customer.id,
                             false,
                         )
 
@@ -69,8 +73,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                         const checkoutSession = event.data.object as Stripe.Checkout.Session
 
                         await saveSubscription(
-                            checkoutSession.subscription.toString(),
-                            checkoutSession.customer.toString(),
+                            checkoutSession.subscription?.toString() ?? '',
+                            typeof checkoutSession.customer === 'string'
+                                ? checkoutSession.customer
+                                : checkoutSession.customer?.id ?? '',
                             true,
                         )
                         break
@@ -78,7 +84,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                         throw new Error('Unhandled event')
                 }
             } catch (err) {
-                return res.json({error: 'Webhook handler failed'})
+                return res.json({ error: 'Webhook handler failed' })
             }
         }
 

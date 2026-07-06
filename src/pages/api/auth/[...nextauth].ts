@@ -1,20 +1,33 @@
-import NextAuth from 'next-auth'
-import Providers from 'next-auth/providers'
+import NextAuth, { NextAuthOptions } from 'next-auth'
+import GithubProvider from 'next-auth/providers/github'
 
 import { fauna } from '../../../services/fauna'
+import { query as q } from 'faunadb'
 
-import { query as q} from 'faunadb'
+declare module 'next-auth' {
+    interface Session {
+        activeSubscription?: object | null
+    }
+}
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
     providers: [
-        Providers.GitHub({
-            clientId: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            scope: 'read:user',
+        GithubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID ?? '',
+            clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
+            authorization: {
+                params: {
+                    scope: 'read:user',
+                },
+            },
         }),
     ],
     callbacks: {
-        async session(session) {
+        async session({ session, user }) {
+            if (!fauna) {
+                return { ...session, activeSubscription: null }
+            }
+
             try {
                 const userActiveSubscription = await fauna.query(
                     q.Get(
@@ -26,7 +39,7 @@ export default NextAuth({
                                     q.Get(
                                         q.Match(
                                             q.Index('user_by_email'),
-                                            q.Casefold(session.user.email)
+                                            q.Casefold(user.email!)
                                         )
                                     )
                                 )
@@ -42,7 +55,7 @@ export default NextAuth({
                     ...session,
                     activeSubscription: userActiveSubscription
                 }
-            } catch  {
+            } catch {
                 return {
                     ...session,
                     activeSubscription: null
@@ -50,30 +63,34 @@ export default NextAuth({
             }
         },
 
-        async signIn(user, account, profile) {
-            const {email} = user
+        async signIn({ user, account, profile }) {
+            if (!fauna) {
+                return true
+            }
+
+            const { email } = user
             try {
-               await fauna.query(
-                   q.If(
-                       q.Not(
-                           q.Exists(
-                               q.Match(
-                                   q.Index('user_by_email'),
-                                   q.Casefold(user.email)
-                               )
-                           )
-                       ),
-                       q.Create(
-                           q.Collection('users'),
-                           {data: {email}}
-                       ),
-                       q.Get(
-                           q.Match(
-                               q.Index('user_by_email'),
-                               q.Casefold(user.email)
-                           )
-                       )
-                   )
+                await fauna.query(
+                    q.If(
+                        q.Not(
+                            q.Exists(
+                                q.Match(
+                                    q.Index('user_by_email'),
+                                    q.Casefold(email!)
+                                )
+                            )
+                        ),
+                        q.Create(
+                            q.Collection('users'),
+                            { data: { email } }
+                        ),
+                        q.Get(
+                            q.Match(
+                                q.Index('user_by_email'),
+                                q.Casefold(email!)
+                            )
+                        )
+                    )
                 )
                 return true
             } catch {
@@ -81,4 +98,6 @@ export default NextAuth({
             }
         }
     }
-})
+}
+
+export default NextAuth(authOptions)

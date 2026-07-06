@@ -1,8 +1,8 @@
-import Prismic from "@prismicio/client";
 import { GetStaticProps } from "next";
+import * as prismic from '@prismicio/client';
 import Head from 'next/head';
 import Link from 'next/link';
-import { RichText } from 'prismic-dom';
+import { asText } from '@prismicio/richtext';
 import { getPrismicClient } from "../../services/prismic";
 import styles from './styles.module.scss';
 
@@ -18,7 +18,7 @@ interface PostsProps {
     posts: Post[]
 }
 
-export default function Posts({posts}) {
+export default function Posts({ posts }: PostsProps) {
     return (
         <>
             <Head>
@@ -29,11 +29,9 @@ export default function Posts({posts}) {
                 <div className={styles.posts}>
                     {posts.map(post => (
                         <Link key={post.slug} href={`/posts/${post.slug}`}>
-                            <a>
-                                <time>{post.updatedAt}</time>
-                                <strong>{post.title}</strong>
-                                <p>{post.excerpt}</p>
-                            </a>
+                            <time>{post.updatedAt}</time>
+                            <strong>{post.title}</strong>
+                            <p>{post.excerpt}</p>
                         </Link>
                     ))
                     }
@@ -44,33 +42,36 @@ export default function Posts({posts}) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const prismic = getPrismicClient()
+    let posts: Post[] = []
 
-    const response = await prismic.query([
-        Prismic.predicates.at('document.type', "publication")
-    ], {
-        fetch: ['publication.title', 'publication.content'],
-        pageSize: 100,
-    })
+    if (process.env.PRISMIC_ENDPOINT) {
+        const prismicClient = getPrismicClient()
 
-    const posts = response.results.map(post => {
-        return {
-            slug: post.uid,
-            title: RichText.asText(post.data.title),
-            excerpt: post.data.content.find(content => content.type === 'paragraph')?.text ?? '',
-            updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-br', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-            })
-        }
+        const response = await prismicClient.getByType('publication', {
+            fetch: ['publication.title', 'publication.content'],
+            pageSize: 100,
+        })
 
-    })
-    // console.log(JSON.stringify(response, null, 2))
+        posts = response.results.map(post => {
+            const data = post.data as any
+            return {
+                slug: post.uid ?? '',
+                title: asText(data.title),
+                excerpt: data.content?.find((content: any) => content.type === 'paragraph')?.text ?? '',
+                updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-br', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                })
+            }
+
+        })
+    }
 
     return {
         props: {
             posts
-        }
+        },
+        revalidate: 60 * 60 * 24,
     }
 }

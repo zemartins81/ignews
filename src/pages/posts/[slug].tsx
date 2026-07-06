@@ -1,9 +1,12 @@
 import { GetServerSideProps } from "next"
-import { getSession } from "next-auth/client"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "../api/auth/[...nextauth]"
 import Head from "next/head"
-import { RichText } from "prismic-dom"
+import { asText } from "@prismicio/richtext"
+import { asHTML } from "@prismicio/client"
 import { getPrismicClient } from "../../services/prismic"
 import styles from './post.module.scss'
+
 interface PostProps {
     post: {
         slug: string;
@@ -26,9 +29,9 @@ export default function Post({ post }: PostProps) {
                         {post.title}
                     </h1>
                     <time>{post.updatedAt}</time>
-                    <div 
+                    <div
                         className={styles.postContent}
-                        dangerouslySetInnerHTML={{__html: post.content}} 
+                        dangerouslySetInnerHTML={{ __html: post.content }}
                     />
                 </article>
             </main>
@@ -36,11 +39,11 @@ export default function Post({ post }: PostProps) {
     )
 }
 
-export const getServerSideProps: GetServerSideProps = async ({req, params}) => {
-    const session = await getSession({req})
-    const { slug} = params
+export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
+    const session = await getServerSession(req, res, authOptions)
+    const slug = params?.slug
 
-    if(!session?.activeSubscription) {
+    if (!session?.activeSubscription) {
         return {
             redirect: {
                 destination: `/posts/preview/${slug}`,
@@ -54,9 +57,9 @@ export const getServerSideProps: GetServerSideProps = async ({req, params}) => {
     const response = await prismic.getByUID('publication', String(slug), {})
 
     const post = {
-        slug, 
-        title: RichText.asText(response.data.title),
-        content: RichText.asHtml(response.data.content),
+        slug,
+        title: asText(response.data.title),
+        content: asHTML(response.data.content),
         updatedAt: new Date(response.last_publication_date).toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: 'long',
